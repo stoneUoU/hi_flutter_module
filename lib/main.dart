@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(const MyApp());
 
@@ -46,6 +47,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  // Flutter给原生传值：
+  static const methodChannel = const MethodChannel('hi_flutter_module_flutter_to_iOS');
+  // 原生给Flutter传值：
+  static const eventChannel = const EventChannel('hi_flutter_module_iOS_to_flutter');
 
   void _incrementCounter() {
     setState(() {
@@ -58,6 +63,19 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  // 渲染前的操作，类似viewDidLoad
+  @override
+  void initState() {
+    super.initState();
+    // 监听事件，同时发送参数12345
+    eventChannel.receiveBroadcastStream(12345).listen((value) {
+      print('接受的值 $value');
+    }, onError: (error) {
+      print('发生错误');
+    }, onDone: () {
+      print('监听结束');
+    }, cancelOnError: true);
+  }
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -71,6 +89,18 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        leading: Container(
+          color: Colors.red,
+          child: GestureDetector(
+            onTap: () {
+              methodChannel.invokeMethod('backToViewController');
+            },
+            child:const Icon(
+              Icons.arrow_back,
+             color: Colors.white
+            ),
+          ),
+        ),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
@@ -93,12 +123,36 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
+              'Hi_Flutter_Module_engine',
+            ),
+            const Text(
               'You have pushed the button this many times:',
             ),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+            InkWell(
+              onTap:_plusOrigin,
+              child: Container(child: Text(
+                '给原生传值',
+                style: TextStyle(color: Colors.red,fontSize: 16,fontWeight: FontWeight.bold),
+              ),margin: EdgeInsets.only(top:32),),
+            ),
+            InkWell(
+              onTap:_getIosValue,
+              child: Container(child: Text(
+                '从原生拿值',
+                style: TextStyle(color: Colors.red,fontSize: 16,fontWeight: FontWeight.bold),
+              ),margin: EdgeInsets.only(top:32),),
+            ),
+            InkWell(
+              onTap:_toNext,
+              child: Container(child: Text(
+                '跳到下个界面',
+                style: TextStyle(color: Colors.red,fontSize: 16,fontWeight: FontWeight.bold),
+              ),margin: EdgeInsets.only(top:32),),
+            )
           ],
         ),
       ),
@@ -108,5 +162,25 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  _plusOrigin() async {
+    Map<String, dynamic> value = {"name": "iOS 原生开发", "age":27, "certNo":"362324199610016010"};
+    await methodChannel.invokeMapMethod('iOSFlutterMethod',value);
+  }
+
+  _getIosValue() async {
+    dynamic result;
+    try{
+      Map<String, dynamic> value = {"name": "Flutter 与 iOS 交互测试", "age":27, "certNo":"362324199610016010"};
+      result = await methodChannel.invokeMethod('flutterIOSMethod',value);
+      print("result_______$result");
+    } on PlatformException {
+      result = "error";
+    }
+  }
+
+  _toNext() async {
+    await methodChannel.invokeMapMethod('iOSFlutterMethodToPage');
   }
 }
