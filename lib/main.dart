@@ -48,9 +48,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   // Flutter给原生传值：
-  static const methodChannel = const MethodChannel('hi_flutter_module_flutter_to_iOS');
+  static const methodChannel =
+      const MethodChannel('hi_flutter_module_flutter_to_iOS');
   // 原生给Flutter传值：
-  static const eventChannel = const EventChannel('hi_flutter_module_iOS_to_flutter');
+  static const eventChannel =
+      const EventChannel('hi_flutter_module_iOS_to_flutter');
+
+  late var streamSubscription;
 
   void _incrementCounter() {
     setState(() {
@@ -67,27 +71,23 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    // 监听事件，同时发送参数12345
-    eventChannel.receiveBroadcastStream(12345).listen((value) {
-      print('接受的值 $value');
+    setEventChannel();
+  }
+
+  Future<void> setEventChannel() async {
+    streamSubscription = eventChannel.receiveBroadcastStream("hi_flutter_module_iOS_to_flutter").listen((event) {
+      print('Flutter收到了原生端的事情：$event');
     }, onError: (error) {
-      print('发生错误');
+      print("error_______$error");
     }, onDone: () {
-      print('监听结束');
+      print('done');
     }, cancelOnError: true);
   }
+
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
         leading: Container(
           color: Colors.red,
@@ -95,31 +95,12 @@ class _MyHomePageState extends State<MyHomePage> {
             onTap: () {
               methodChannel.invokeMethod('backToViewController');
             },
-            child:const Icon(
-              Icons.arrow_back,
-             color: Colors.white
-            ),
+            child: const Icon(Icons.arrow_back, color: Colors.white),
           ),
         ),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
@@ -133,25 +114,43 @@ class _MyHomePageState extends State<MyHomePage> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             InkWell(
-              onTap:_plusOrigin,
-              child: Container(child: Text(
-                '给原生传值',
-                style: TextStyle(color: Colors.red,fontSize: 16,fontWeight: FontWeight.bold),
-              ),margin: EdgeInsets.only(top:32),),
+              onTap: _plusOrigin,
+              child: Container(
+                child: Text(
+                  '给原生传值',
+                  style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                ),
+                margin: EdgeInsets.only(top: 32),
+              ),
             ),
             InkWell(
-              onTap:_getIosValue,
-              child: Container(child: Text(
-                '从原生拿值',
-                style: TextStyle(color: Colors.red,fontSize: 16,fontWeight: FontWeight.bold),
-              ),margin: EdgeInsets.only(top:32),),
+              onTap: _getIosValue,
+              child: Container(
+                child: Text(
+                  '从原生拿值',
+                  style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                ),
+                margin: EdgeInsets.only(top: 32),
+              ),
             ),
             InkWell(
-              onTap:_toNext,
-              child: Container(child: Text(
-                '跳到下个界面',
-                style: TextStyle(color: Colors.red,fontSize: 16,fontWeight: FontWeight.bold),
-              ),margin: EdgeInsets.only(top:32),),
+              onTap: _toNext,
+              child: Container(
+                child: Text(
+                  '跳到下个界面',
+                  style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                ),
+                margin: EdgeInsets.only(top: 32),
+              ),
             )
           ],
         ),
@@ -165,15 +164,23 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _plusOrigin() async {
-    Map<String, dynamic> value = {"name": "iOS 原生开发", "age":27, "certNo":"362324199610016010"};
-    await methodChannel.invokeMapMethod('iOSFlutterMethod',value);
+    Map<String, dynamic> value = {
+      "name": "iOS 原生开发",
+      "age": 27,
+      "certNo": "362324199610016010"
+    };
+    await methodChannel.invokeMapMethod('iOSFlutterMethod', value);
   }
 
   _getIosValue() async {
     dynamic result;
-    try{
-      Map<String, dynamic> value = {"name": "Flutter 与 iOS 交互测试", "age":27, "certNo":"362324199610016010"};
-      result = await methodChannel.invokeMethod('flutterIOSMethod',value);
+    try {
+      Map<String, dynamic> value = {
+        "name": "Flutter 与 iOS 交互测试",
+        "age": 27,
+        "certNo": "362324199610016010"
+      };
+      result = await methodChannel.invokeMethod('flutterIOSMethod', value);
       print("result_______$result");
     } on PlatformException {
       result = "error";

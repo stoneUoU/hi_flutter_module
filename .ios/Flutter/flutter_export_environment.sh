@@ -1,6 +1,6 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=/Volumes/windowOSHD/AndroidStudio/flutter-sdk-3.13.5"
+export "FLUTTER_ROOT=/Users/stone/Flutter/flutter-sdk/flutter-sdk-3.13.5"
 export "FLUTTER_APPLICATION_PATH=/Users/stone/iOS/hi_flutter_module"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_TARGET=/Users/stone/iOS/hi_flutter_module/lib/main.dart"
