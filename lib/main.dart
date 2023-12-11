@@ -49,10 +49,10 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   // Flutter给原生传值：
   static const methodChannel =
-      const MethodChannel('hi_flutter_module_flutter_to_iOS');
+      const MethodChannel('EVENT_FLUTTER_SEND_MESSAGE_IOS');
   // 原生给Flutter传值：
   static const eventChannel =
-      const EventChannel('hi_flutter_module_iOS_to_flutter');
+      const EventChannel('EVENT_IOS_SEND_MESSAGE_FLUTTER');
 
   late var streamSubscription;
 
