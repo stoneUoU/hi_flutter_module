@@ -18,6 +18,10 @@ DerivedData/
 
 .generated/
 
+.android/local.properties
+.ios/Flutter/flutter_export_environment.sh
+.ios/Flutter/Generated.xcconfig
+
 *.pbxuser
 *.mode1v3
 *.mode2v3
@@ -44,3 +48,4 @@ app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+
